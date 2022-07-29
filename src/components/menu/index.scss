@@ -1,0 +1,9 @@
+.menu {
+  line-height: 60px !important;
+  margin-left: 130px !important;
+  width: calc(100% - 130px);
+  float: right;
+  li:first-child {
+    margin-left: auto;
+  }
+}

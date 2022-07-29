@@ -1,0 +1,29 @@
+.toolbar {
+  margin-bottom: 13px;
+  float: right;
+}
+
+.recordContent {
+  padding: 15px 10px 0px 10px;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+    Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji,
+    Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+  line-height: 1.5715;
+}
+
+.recordList {
+  .ant-list-item-action li:last-child {
+    float: right;
+  }
+}
+
+.imgClose {
+  position: absolute;
+  z-index: 1;
+  top: 0px;
+  right: 0px;
+  cursor: pointer;
+  color: #ed5858 !important;
+}

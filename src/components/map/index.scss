@@ -1,0 +1,110 @@
+.searchDiv {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 40%;
+}
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+}
+.amap-icon {
+  width: 25px;
+  height: 34px;
+}
+#panel {
+  border: solid 1px #f3f3f3;
+}
+
+.searchListItem {
+  background-color: #fff;
+  border-bottom: 1px solid #f3f3f3;
+  padding: 0px 10px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  .map-icon {
+    background: url('../../assets/map/poi-marker.png') no-repeat;
+    background-size: 437px 267px;
+    width: 26px;
+    height: 34px;
+    display: inline-block;
+  }
+  .poiInfo {
+    width: 100%;
+    position: relative;
+    .title {
+      padding: 17px 5px;
+    }
+    .address {
+      font-size: 12px;
+      color: #9d9d9d;
+      display: block;
+      width: 100%;
+      text-align: right;
+      position: absolute;
+      bottom: 0px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+.amap-panel {
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  z-index: 9999;
+  top: 0px;
+  left: 0px;
+}
+.amap-panel-hide {
+  display: none;
+}
+.searchListItem:last-child {
+  border-bottom: none !important;
+}
+
+.marker-0 {
+  background-position: -8px -48px !important;
+}
+.marker-1 {
+  background-position: -52px -48px !important;
+}
+.marker-2 {
+  background-position: -96px -48px !important;
+}
+.marker-3 {
+  background-position: -140px -48px !important;
+}
+.marker-4 {
+  background-position: -184px -48px !important;
+}
+.active-marker-0,
+.hover-marker-0 {
+  background-position: -8px -138px !important;
+}
+.active-marker-1,
+.hover-marker-1 {
+  background-position: -52px -138px !important;
+}
+.active-marker-2,
+.hover-marker-2 {
+  background-position: -96px -138px !important;
+}
+.active-marker-3,
+.hover-marker-3 {
+  background-position: -140px -138px !important;
+}
+.active-marker-4,
+.hover-marker-4 {
+  background-position: -184px -138px !important;
+}
+
+.amap-icon-marker {
+  background: url('../../assets/map/poi-marker.png') no-repeat;
+  cursor: pointer;
+  background-size: 437px 267px;
+}
