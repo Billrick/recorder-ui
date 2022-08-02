@@ -2,7 +2,7 @@ import SyncImg from '@/components/syncImg'
 import { service } from '@/constants/constant'
 import { getToken, http } from '@/utils'
 import { StarOutlined, LikeOutlined, MessageOutlined, EditOutlined, DeleteOutlined, PlusOutlined, CloseCircleOutlined } from '@ant-design/icons'
-import { Button, Drawer, Image, List, Modal, Skeleton, Space, Spin, Upload } from "antd"
+import { Button, Drawer, Form, Image, Input, List, message, Modal, Popconfirm, Skeleton, Space, Spin, Switch, Upload } from "antd"
 import { useEffect, useState } from 'react'
 
 
@@ -10,6 +10,7 @@ const Record = (props) => {
   const { category, recordModalVisible, f_setInfo, onClose, drawerVisible } = props
   const [loading, setLoading] = useState(true)
   const [records, setRecords] = useState([])
+  const [drawerWidth, setDrawerWidth] = useState(400)
   const [currentRecord, setCurrentRecord] = useState(null)
   // const searchHandler = (values) => {
   //   console.log(values)
@@ -25,26 +26,52 @@ const Record = (props) => {
   }
   const handleSubmit = (d) => {
     console.log(d)
+    http.post('/record/save', d).then(d => {
+      message.success(d.msg)
+      f_setInfo({ t: 'setRecordFormModal', d: false })
+      loadImgs()
+    }).then(e => {
+      console.log('/record/save', e)
+    })
+  }
+
+  const loadImgs = async (imgs) => {
+    setRecords([])
+    const res = await http.post('/record/list', { categoryId: category.id })
+    setRecords(res.rows)
+    setLoading(false)
+  }
+
+  const removeRecord = (id) => {
+    http.post(`/record/delete/${id}`).then(d => {
+      message.success(d.msg)
+    }).catch(e => {
+      console.log(`/record/delete/${id}`, e)
+    })
   }
 
   useEffect(() => {
-    async function loadImgs (img) {
-      setRecords([])
-      const res = await http.post('/record/list', { categoryId: category.id })
-      setRecords(res.rows)
-      setLoading(false)
-    }
     if (category) {
       loadImgs()
     }
-  }, [category])
+  }, [category])// eslint-disable-line
+
+  useEffect(() => {
+    const windowWidth = window.innerWidth
+    if (windowWidth > 740) {
+      setDrawerWidth(740)
+    } else {
+      setDrawerWidth(400)
+    }
+  }, [drawerVisible])
 
   return (
     <>
       <Drawer
         title={<b>{category?.title}</b>}
         placement="right"
-        size={'large'}
+        //size={'large'}
+        width={drawerWidth}
         onClose={onClose}
         visible={drawerVisible}
         extra={
@@ -90,14 +117,22 @@ const Record = (props) => {
                           <><StarOutlined /><span>10</span></>,
                           <><LikeOutlined /><span>20</span></>,
                           <><MessageOutlined /><span>30</span></>,
-                          <>
+                          <div style={{ 'paddingTop': '10px' }}>
                             <Space size={'large'}>
                               <a href='#!' title='编辑' onClick={() => openRecordFormModal(item)}><EditOutlined /></a>
-                              <a href='#!' title='删除'><DeleteOutlined /></a>
+
+                              <Popconfirm
+                                placement="top"
+                                title='确认要删除吗?'
+                                onConfirm={removeRecord}
+                                okText="确认"
+                                cancelText="取消"
+                              >
+                                <a href='#!' title='删除'><DeleteOutlined /></a>
+                              </Popconfirm>
                               <span>{item.createTime}</span>
                             </Space>
-                          </>,
-
+                          </div>
                         ]
                         : undefined
                     }
@@ -129,7 +164,36 @@ const Record = (props) => {
 const RecordFormModal = (props) => {
   const { recordModalVisible, categoryId, record, handleSubmit, f_setInfo } = props
   const token = getToken()
+
+  const [form] = Form.useForm()
+
   const [fileList, setFileList] = useState([])
+  const [removeSha, setRemoveSha] = useState([])
+
+
+  const handleSubmitPrev = (p) => {
+    form.validateFields().then(values => {
+      console.log(values)
+      let data = values
+      data.isPrivate = values.isPrivate ? '1' : '0'
+      data.imgs = fileList.filter(f => f.originFileObj).map(f => {
+        return {
+          sha: f.response.data.content.sha,
+          imgUrl: f.response.data.content.url,
+          fileName: f.response.data.content.name
+        }
+      })
+      if (record) {
+        data.id = record.id
+      }
+      data.categoryId = categoryId
+      data.removeSha = removeSha
+      handleSubmit(data)
+    }).catch(err => {
+      console.log(err)
+    })
+    //handleSubmit
+  }
   const handleCancel = () => {
     f_setInfo({ t: 'setRecordFormModal', d: false })
   }
@@ -141,71 +205,110 @@ const RecordFormModal = (props) => {
       reader.onload = () => resolve(reader.result)
       reader.onerror = (error) => reject(error)
     })
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList)
+  const handleChange = ({ fileList: newFileList }) => { setFileList(newFileList) }
 
   const handleRemove = (f) => {
-    console.log(f)
-    // http.post('/f/del', { categoryId }).then(d => {
+    if (f.originFileObj) {
+      http.post('/f/delTmp', {
+        categoryId: categoryId,
+        sha: f.response.data.content.sha,
+        fileName: f.response.data.content.name
+      }
+      ).then(d => {
+        console.log(d)
+        return true
+      }).catch(e => {
+        console.log('/f/del', e)
+      })
+    } else {
+      setRemoveSha([...removeSha, f.response.data.content.sha])
+      return true
+    }
 
-    // }).catch(e => {
-    //   console.log('/f/del', e)
-    // })
-    return true
+    //return false
+  }
+
+  const remove = (actions, file) => {
+    actions.remove(file)
   }
   const setData = () => {
     let d = {}
     d.categoryId = categoryId
     return d
   }
-  //actions: { download: function, preview: function, remove: function }
   const renderItem = (originNode, file, fileList, actions) => {
-    //console.log(originNode, file, fileList, actions)
     return (
       <div className="ant-upload-list-item ant-upload-list-item-done ant-upload-list-item-list-type-picture-card" style={{ 'overflow': 'hidden' }}>
-        <CloseCircleOutlined className='imgClose' onClick={() => actions.remove(file)} />
-        <SyncImg height={'100%'} width={'100%'} imgUrl={file.response ? file.response.data.content.url : getBase64(file.originFileObj)}></SyncImg>
+        <CloseCircleOutlined className='imgClose' onClick={() => remove(actions, file)} />
+        <SyncImg height={'100%'} width={'100%'} imgUrl={file.originFileObj ? getBase64(file.originFileObj) : file.response.data.content.url}></SyncImg>
       </div >
     )
   }
 
   useEffect(() => {
+    form.resetFields()
+    setRemoveSha([])
     if (record) {
       const imgs = record.imgs.map(item => {
-        return { name: item.fileName, uid: item.sha, url: ``, response: { data: { content: { sha: item.sha, url: item.imgUrl } } } }
+        return { name: item.fileName, uid: item.sha, response: { data: { content: { sha: item.sha, url: item.imgUrl, name: item.fileName } } } }
       })
       setFileList(imgs)
+    } else {
+      setFileList([])
     }
   }, [record, recordModalVisible])// eslint-disable-line
   return (<>
     <Modal
       visible={recordModalVisible}
-      onOk={handleSubmit}
+      onOk={handleSubmitPrev}
       onCancel={handleCancel}
       title={record ? '编辑回忆' : '创建记忆'}
     >
-      <div className='recorUpload'>
-        <Upload
-          action={service.baseUrl + '/f/upload'}
-          listType="picture-card"
-          fileList={fileList}
-          onChange={handleChange}
-          itemRender={renderItem}
-          headers={{ Authorization: `Bearer ${token}` }}
-          data={setData()}
-        >
-          <div>
-            <PlusOutlined />
-            <div
-              style={{
-                marginTop: 8,
-              }}
+      <Form
+        form={form}
+        initialValues={
+          {
+            recordDesc: record?.recordDesc,
+            isPrivate: (record?.isPrivate === '1')
+          }
+        }
+      >
+        <Form.Item label="" name='title'>
+          <div className='recorUpload'>
+            <Upload
+              action={service.baseUrl + '/f/upload'}
+              listType="picture-card"
+              fileList={fileList}
+              onChange={handleChange}
+              itemRender={renderItem}
+              onRemove={handleRemove}
+              headers={{ Authorization: `Bearer ${token}` }}
+              data={setData()}
             >
-              上传
-            </div>
+              {fileList.length >= 6 ? null :
+                <div>
+                  <PlusOutlined />
+                  <div
+                    style={{
+                      marginTop: 8,
+                    }}
+                  >
+                    上传
+                  </div>
+                </div>
+              }
+            </Upload>
           </div>
 
-        </Upload>
-      </div>
+        </Form.Item>
+        <Form.Item label="" name='recordDesc'>
+          <Input.TextArea placeholder='稍微聊聊' />
+        </Form.Item>
+        <Form.Item label="" valuePropName="checked" name='isPrivate'>
+          <Switch checkedChildren="私人" unCheckedChildren="公开" />
+        </Form.Item>
+      </Form>
+
 
     </Modal>
   </>)

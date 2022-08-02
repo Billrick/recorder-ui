@@ -28,7 +28,7 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use((response) => {
   // 2xx 范围内的状态码都会触发该函数。
   // 对响应数据做点什么
-  if (response.config.url.startsWith('https://api.github.com')) {
+  if (response.config.url.startsWith('https://api.github.com') || response.config.url.startsWith('https://gitee.com/api')) {
     return response.data
   }
   if (response.data.code === 401) {

@@ -25,12 +25,12 @@ function Menu () {
   const changeMenu = () => {
     if (isLogin()) {
       setMenus([{
-        label: <Link to='/square'>广场</Link>,
-        key: '/square',
+        label: <Link to='/'>广场</Link>,
+        key: '/',
         icon: <PartitionOutlined />,
       }, {
-        label: <Link to='/'>我</Link>,
-        key: '/',
+        label: <Link to='/me'>我</Link>,
+        key: '/me',
         icon: <RobotOutlined />,
       }, {
         label: '设置',
@@ -63,8 +63,8 @@ function Menu () {
       }])
     } else {
       setMenus([{
-        label: <Link to='/square'>广场</Link>,
-        key: '/square',
+        label: <Link to='/'>广场</Link>,
+        key: '/',
         icon: <PartitionOutlined />,
       }, {
         label: <Link to='/login'>登录</Link>,

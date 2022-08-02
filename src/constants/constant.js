@@ -1,6 +1,6 @@
 
 const service = {
-  baseUrl: 'http://localhost:8080'
+  baseUrl: 'http://10.5.209.19:8080'
 }
 
 const dateFormatter = {
@@ -18,8 +18,12 @@ const recordAction = {
 const git = {
   headers: {
     Accept: 'application/vnd.github.v3+json',
-    Authorization: 'token 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'
+    Authorization: 'token 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'
   }
+}
+
+const gitee = {
+  accessToken: 'ffe1179f05b469ca1d67bfda4923f079'
 }
 
 const map = {
@@ -32,4 +36,4 @@ const map = {
   }
 }
 
-export { dateFormatter, recordAction, map, git, service }
+export { dateFormatter, recordAction, map, git, gitee, service }

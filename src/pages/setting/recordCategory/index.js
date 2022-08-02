@@ -20,24 +20,28 @@ function RecordCategory () {
     {
       title: '描述',
       dataIndex: 'categoryDesc',
+      responsive: ['lg']
     },
     {
       title: '地点',
-      dataIndex: 'locale',
+      dataIndex: 'locale'
     },
     {
       title: '地图点位',
       dataIndex: 'mapPoint',
+      responsive: ['lg']
     },
     {
       title: '开始时间',
       dataIndex: 'startDate',
-      render: startData => moment(startData).format(dateFormatter.ymd_none)
+      render: startData => moment(startData).format(dateFormatter.ymd_none),
+      responsive: ['lg']
     },
     {
       title: '结束时间',
       dataIndex: 'endDate',
-      render: endDate => moment(endDate).format(dateFormatter.ymd_none)
+      render: endDate => moment(endDate).format(dateFormatter.ymd_none),
+      responsive: ['lg']
     },
     {
       title: '',

@@ -30,8 +30,8 @@ function App () {
             <Route path='/login' element={<Login />}></Route>
             <Route path='/' element={<Layout />}>
               {/* 二级路由 */}
-              <Route index element={<AuthComponent><Home /></AuthComponent>}></Route>
-              <Route path='/square' element={<Square />}></Route>
+              <Route path='/me' element={<AuthComponent><Home /></AuthComponent>}></Route>
+              <Route index element={<Square />}></Route>
               <Route path='/userCenter' element={<UserCenter />}></Route>
               <Route path='/recordCategory' element={<RecordCategory />}></Route>
             </Route>

@@ -207,7 +207,7 @@ const AMap = (props) => {
             }
           }))
           const p = result.poiList.pois[0]
-          showInfo(result)
+          //showInfo(result)
           setPositionCenter([p.location.lng + -0.0007, p.location.lat])
           setZoom(15)
         }
@@ -230,6 +230,7 @@ const AMap = (props) => {
 
   return (
     <>
+      {/* mapStyle='amap://styles/dark' */}
       <Map amapkey={amapkey} center={positionCenter} zoom={zoom} events={mapEvents} version='1.4.2&plugin=AMap.Geocoder,AMap.Autocomplete'>
         <MapSearchInput markerArr={markerArr} clearFlag={clearFlag} className='mapToolBar' poiId={poiId} f_setInfo={setInfo}></MapSearchInput>
         <Markers markers={markerArr} events={markerEvents} render={renderMarker}></Markers>
@@ -358,10 +359,7 @@ const MapInfoWindow = (props) => {
       offset: new window.AMap.Pixel(3, -30)
     })
     //添加信息框
-    console.log(location)
-    setTimeout(() => {
-      info.open(mapInstance, [location.lng, location.lat])
-    }, 1000)
+    info.open(mapInstance, [location.lng, location.lat])
 
   }
   useEffect(() => {
