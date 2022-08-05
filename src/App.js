@@ -19,7 +19,7 @@ import AuthComponent from './components/auth/AuthComponent'
 import RecordCategory from './pages/setting/recordCategory'
 import UserCenter from './pages/setting/userCenter'
 
-moment.locale('en')
+moment.locale('cn')
 
 function App () {
   return (

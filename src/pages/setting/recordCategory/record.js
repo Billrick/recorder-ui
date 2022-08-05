@@ -114,10 +114,10 @@ const Record = (props) => {
                     actions={
                       !loading
                         ? [
-                          <><StarOutlined /><span>10</span></>,
-                          <><LikeOutlined /><span>20</span></>,
+                          <><StarOutlined /><span>{item.viewCount.collection}</span></>,
+                          <><LikeOutlined /><span>{item.viewCount.likeIt}</span></>,
                           <><MessageOutlined /><span>30</span></>,
-                          <div style={{ 'paddingTop': '10px' }}>
+                          <div style={drawerWidth === 400 ? { 'paddingTop': '10px' } : null}>
                             <Space size={'large'}>
                               <a href='#!' title='编辑' onClick={() => openRecordFormModal(item)}><EditOutlined /></a>
 
