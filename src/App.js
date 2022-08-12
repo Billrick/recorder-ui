@@ -7,7 +7,7 @@ import Login from '@/pages/login'
 import Home from '@/pages/home'
 // antdesign 中文
 import zh_CN from 'antd/es/locale/zh_CN'
-import { ConfigProvider } from 'antd'
+import { ConfigProvider, message } from 'antd'
 import 'moment/locale/zh-cn'
 import moment from 'moment'
 //component
@@ -20,7 +20,7 @@ import RecordCategory from './pages/setting/recordCategory'
 import UserCenter from './pages/setting/userCenter'
 
 moment.locale('cn')
-
+message.config({ maxCount: 1 })
 function App () {
   return (
     <div className="App">

@@ -1,0 +1,15 @@
+@media only screen and (max-width: 650px) {
+  .userForm {
+    padding: 5px 20px !important;
+  }
+}
+
+@media only screen and (min-width: 651px) {
+  .ant-tabs-tab-active {
+    background: #e1f0ff !important;
+  }
+  .passwordForm {
+    width: 400px;
+    padding: 35px 0 0 35px !important;
+  }
+}

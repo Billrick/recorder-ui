@@ -30,6 +30,11 @@ const map = {
   base: {
     key: 'a7a90e05a37d3f6bf76d4a9032fc9129'
   },
+  api: {
+    getAreaSearchURL: (keywords) => {
+      return `https://restapi.amap.com/v3/config/district?platform=JS&s=rsv3&logversion=2.0&key=${map.base.key}&keywords=${keywords}&subdistrict=1&showbiz=false&output=json`
+    }
+  },
   zoom: {
     default: '11',
     centerDefault: '15'

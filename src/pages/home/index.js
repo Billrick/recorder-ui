@@ -1,19 +1,27 @@
 import './index.scss'
-import { StarOutlined, LikeOutlined, MessageOutlined } from '@ant-design/icons'
+import { StarOutlined, LikeOutlined, MessageOutlined, TagOutlined } from '@ant-design/icons'
 import http from '@/utils/http'
 import { Avatar, Button, Col, Comment, Drawer, Empty, Form, Image, List, Radio, Row, Select, Skeleton, Space, Spin } from 'antd'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import SyncImg from '@/components/syncImg'
 import { CommentList, Editor } from '@/components/comment'
-import AvatarSelect from '@/components/avatarSelect'
-
+import { useStore } from '@/store'
+import { observer } from 'mobx-react-lite'
+import { useForm } from 'antd/es/form/Form'
 const { Option } = Select
 
 function Home () {
+
+  const { userStore } = useStore()
+  const user = userStore.getUser()
   const [loading, setLoading] = useState(true)
   const [records, setRecords] = useState([])
+  const [categoryDict, setCategoryDict] = useState([])
+  const [category, setCategory] = useState([])
 
+
+  const [searchForm] = useForm()
   // comment start
   const [childrenDrawer, setChildrenDrawer] = useState(false)
   const [comments, setComments] = useState([])
@@ -43,11 +51,12 @@ function Home () {
   const getComments = (record, reload) => {
     setChildrenDrawer(true)
     setCurrentRecord(record)
-    if (!reload) {
-      setComments(record.comments)
-      return
-    }
+    // if (!reload) {
+    //   setComments(record.comments)
+    //   return
+    // }
     http.post('/c/comments/' + record.id).then(d => {
+      record.comments = d.rows
       setComments(d.rows)
     }).catch(e => {
 
@@ -56,7 +65,7 @@ function Home () {
   // comment end
 
   const searchHandler = (values) => {
-    console.log(values)
+    loadRecords(values)
   }
 
   const operateView = (recordId, topic) => {
@@ -76,32 +85,50 @@ function Home () {
     }).catch(e => { })
   }
 
+  const tagHandle = (id) => {
+    if (category.indexOf(id) !== -1) {
+      return
+    }
+    searchForm.setFieldValue('categoryIds', [id])
+    loadRecords(searchForm.getFieldValue())
+  }
+
+  const categoryChangeHandle = (e) => {
+    setCategory(e)
+    loadRecords(searchForm.getFieldValue())
+  }
+
+  async function loadRecords (params) {
+    const res = await http.post('/record/list', params)
+    setRecords(res.rows)
+    setLoading(false)
+  }
 
   useEffect(() => {
-    async function loadImgs (img) {
-      const res = await http.post('/record/list')
-      setRecords(res.rows)
-      setLoading(false)
+    async function loadCategoryDict (params) {
+      const res = await http.post('/category/dict')
+      setCategoryDict(res.data)
     }
-    loadImgs()
+
+    loadRecords()
+    loadCategoryDict()
   }, [])
   return (<>
-    <Form onFinish={() => searchHandler()}
+    <Form onFinish={searchHandler}
       labelCol={{ span: 1.5 }}
-      wrapperCol={{ span: 6 }}
+      wrapperCol={{ span: 10 }}
       className="ant-advanced-search-form"
       initialValues={{ status: "" }}
+      form={searchForm}
     >
       <Row gutter={24}>
         <Col span={24}>
           <Form.Item
-            name="category"
+            name="categoryIds"
             label="记录分类"
           >
-            <Select mode="multiple" placeholder="记录分类">
-              <Option value="">拉萨</Option>
-              <Option value="">西藏</Option>
-              <Option value="">湖北</Option>
+            <Select mode="multiple" placeholder="记录分类" allowClear onChange={categoryChangeHandle} value={category} >
+              {categoryDict.map(dict => <Option key={dict.id} value={dict.id}>{dict.title}</Option>)}
             </Select>
           </Form.Item>
         </Col>
@@ -115,7 +142,6 @@ function Home () {
               <Radio.Button value="1">私人</Radio.Button>
             </Radio.Group>
           </Form.Item>
-          <AvatarSelect />
         </Col>
       </Row>
       <Form.Item wrapperCol={{ span: 15, offset: 1.5 }}>
@@ -156,13 +182,16 @@ function Home () {
                     ? [
                       <><StarOutlined style={item.viewCount.icollectionIt ? { 'color': 'red' } : null} onClick={() => operateView(item.id, 'RC')} /><span>{item.viewCount.collection}</span></>,
                       <><LikeOutlined style={item.viewCount.ilikeIt ? { 'color': 'red' } : null} onClick={() => operateView(item.id, 'RL')} /><span>{item.viewCount.likeIt}</span></>,
-                      <><MessageOutlined onClick={() => { getComments(item) }} /><span>{item.viewCount.comment}</span></>
+                      <><MessageOutlined onClick={() => { getComments(item) }} /></>,
+                      <><a href='#!' className='categoryTag' onClick={() => tagHandle(item.categoryId)}>
+                        <TagOutlined /> &nbsp;{item.categoryTitle}
+                      </a></>
                     ]
                     : undefined
                 }
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={item.avatar} />}
+                  avatar={<Avatar src={'https://joeschmoe.io/api/v1/' + item.user.avatar} />}
                   title={<a href={item.href}>{item.user.nickName}</a>}
                   description={item.recordDesc}
                 />
@@ -191,7 +220,7 @@ function Home () {
     >
       {comments.length > 0 ? <CommentList comments={comments} /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={'暂无评论'} />}
       <Comment
-        avatar={<Avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo" />}
+        avatar={<Avatar src={"https://joeschmoe.io/api/v1/" + (user?.avatar ? user.avatar : "random")} alt={user?.nickName} />}
         content={
           <Editor
             onChange={handleChange}
@@ -206,4 +235,4 @@ function Home () {
   </>)
 }
 
-export default Home
+export default observer(Home)

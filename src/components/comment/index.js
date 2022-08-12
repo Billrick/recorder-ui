@@ -1,28 +1,35 @@
+import { useStore } from "@/store"
 import { Avatar, Button, Comment, Form, List, Tooltip } from "antd"
 import TextArea from "antd/lib/input/TextArea"
 import moment from 'moment'
 
-const CommentList = ({ comments }) => (
-  <List
-    dataSource={comments}
-    header={`${comments.length} ${comments.length > 1 ? '条评论' : '条评论'}`}
-    itemLayout="horizontal"
-    renderItem={(props) => {
-      return <Comment author={<a href="!#" dangerouslySetInnerHTML={{ __html: props.createByName }}></a>}
-        avatar={<Avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo" />}
-        content={
-          <p>
-            {props.content}
-          </p>
-        }
-        datetime={
-          <Tooltip title={moment().format('YYYY年MM月DD日HH点mm分')}>
-            <span>{moment(props.createTime).fromNow()}</span>
-          </Tooltip>
-        } />
-    }}
-  />
-)
+const CommentList = ({ comments }) => {
+  const { userStore } = useStore()
+  const user = userStore.getUser()
+  const renderCommentItem = (props) => {
+    return <Comment author={<a href="#!">{props?.creator.nickName + (props?.creator.nickName === user.nickName ? "（我）" : "")}</a>}
+      avatar={<Avatar src={"https://joeschmoe.io/api/v1/" + (props.creator.avatar ? props.creator.avatar : 'random')} alt={props?.creator.nickName} />}
+      content={
+        <p>
+          {props.content}
+        </p>
+      }
+      datetime={
+        <Tooltip title={moment(props.createTime).format('YYYY年MM月DD日HH点mm分')}>
+          <span>{moment(props.createTime).fromNow()}</span>
+        </Tooltip>
+      }
+    />
+  }
+  return (
+    <List
+      dataSource={comments}
+      header={`${comments.length} ${comments.length > 1 ? '条评论' : '条评论'}`}
+      itemLayout="horizontal"
+      renderItem={renderCommentItem}
+    />
+  )
+}
 
 const Editor = ({ onChange, onSubmit, submitting, value, btnLabel }) => (
   <>
