@@ -28,7 +28,7 @@ const AvatarSelect = (props) => {
     <br />
     <Popover
       content={<AvatarContent handleVisibleChange={handleVisibleChange} avatar={avatar} />}
-      title="头像选择"
+      title="头像选择 from https://joeschmoe.io"
       trigger="click"
       placement="bottom"
       visible={visible}

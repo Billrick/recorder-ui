@@ -15,7 +15,7 @@ import {
 import React, { useEffect, useState } from 'react'
 import AvatarSelect from '@/components/avatarSelect'
 import CitySelect from '@/components/citySelect'
-import { getUserId, http } from '@/utils'
+import { http } from '@/utils'
 import { useStore } from '@/store'
 const { Option } = Select
 
@@ -77,7 +77,7 @@ function SetUserInfo () {
 
   useEffect(() => {
     const setUserInfo = async () => {
-      const d = await http.post('/user/get/' + getUserId())
+      const d = await http.post('/user/get')
       form.setFieldsValue(d.data)
       setAvatar(d.data.avatar)
     }

@@ -7,7 +7,7 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { useStore } from '@/store'
 
 import { useNavigate } from 'react-router-dom'
-import { setToken, setUserId } from '@/utils'
+import { setToken } from '@/utils'
 
 
 function Login () {
@@ -20,7 +20,6 @@ function Login () {
           setToken(d.data.tokenValue)
           navigate('/', { replace: true })
           message.success('登录成功！')
-          setUserId(d.data.loginId)
         } else {
           message.error(`登录失败 ${d.msg}！`)
         }
