@@ -61,7 +61,7 @@ function RecordCategory () {
   const [recordModal, setRecordModal] = useState(false)
   const [page, setPage] = useState({
     current: 1,
-    pageSize: 10
+    pageSize: 8
   })
 
 
@@ -121,11 +121,8 @@ function RecordCategory () {
   const loadData = (params) => {
     http.post('/category/list', params).then(d => {
       setData(d.rows)
-      setPage({
-        pageNum: params.current,
-        pageSize: params.pageSize,
-        total: d.total
-      })
+      params.page.total = d.total
+      setPage(params.page)
     }).catch(e =>
       console.log('/category/list', e))
   }
@@ -145,6 +142,10 @@ function RecordCategory () {
     //setRecord(null)
   }
 
+  const handleTableChange = (newPagination, filters, sorter) => {
+    loadData({ page: newPagination })
+  }
+
 
   useEffect(() => {
     loadData({ page })
@@ -159,7 +160,7 @@ function RecordCategory () {
     </div>
     <EditModal isEdit={record != null} record={record} handleOk={handleOk} handleCancel={handleCancel} isModalVisible={isModalVisible}>
     </EditModal>
-    <Table columns={columns} rowKey={record => record.id} dataSource={data} pagination={page}></Table>
+    <Table columns={columns} rowKey={record => record.id} dataSource={data} pagination={page} onChange={handleTableChange}></Table>
     <Record
       f_setInfo={setInfo}
       recordModalVisible={recordModal}

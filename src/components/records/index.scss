@@ -1,0 +1,23 @@
+.rightDate,
+.bottomDate {
+  font-size: 10px;
+  display: none;
+}
+.rightDate {
+  float: right;
+}
+@media only screen and (max-width: 500px) {
+  .rightDate {
+    display: inline-block !important;
+    color: #c1c1c1;
+  }
+  .point + em {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 501px) {
+  .bottomDate {
+    display: inline-block !important;
+  }
+}

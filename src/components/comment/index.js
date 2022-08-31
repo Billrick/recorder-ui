@@ -7,7 +7,7 @@ const CommentList = ({ comments }) => {
   const { userStore } = useStore()
   const user = userStore.getUser()
   const renderCommentItem = (props) => {
-    return <Comment author={<a href="#!">{props?.creator.nickName + (props?.creator.nickName === user.nickName ? "（我）" : "")}</a>}
+    return <Comment author={<a href="#!">{props?.creator.nickName + (props?.creator.nickName === user?.nickName ? "（我）" : "")}</a>}
       avatar={<Avatar src={"https://joeschmoe.io/api/v1/" + (props.creator.avatar ? props.creator.avatar : 'random')} alt={props?.creator.nickName} />}
       content={
         <p>

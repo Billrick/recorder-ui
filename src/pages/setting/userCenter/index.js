@@ -110,7 +110,6 @@ function SetUserInfo () {
         <Form
           layout={formLayout}
           form={form}
-          name="register"
           className='userForm'
           onFinish={onFinish}
           initialValues={{

@@ -1,6 +1,6 @@
 
 const service = {
-  baseUrl: 'http://10.5.209.19:8080'
+  baseUrl: 'http://10.5.209.120:8080'
 }
 
 const dateFormatter = {

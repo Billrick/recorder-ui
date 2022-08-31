@@ -2,7 +2,7 @@ import SyncImg from '@/components/syncImg'
 import { service } from '@/constants/constant'
 import { getToken, http } from '@/utils'
 import { StarOutlined, LikeOutlined, MessageOutlined, EditOutlined, DeleteOutlined, PlusOutlined, CloseCircleOutlined } from '@ant-design/icons'
-import { Button, Drawer, Form, Image, Input, List, message, Modal, Popconfirm, Skeleton, Space, Spin, Switch, Upload } from "antd"
+import { Button, Drawer, Form, Image, Input, List, message, Modal, Pagination, Popconfirm, Skeleton, Space, Spin, Switch, Upload } from "antd"
 import { useEffect, useState } from 'react'
 
 
@@ -10,6 +10,13 @@ const Record = (props) => {
   const { category, recordModalVisible, f_setInfo, onClose, drawerVisible } = props
   const [loading, setLoading] = useState(true)
   const [records, setRecords] = useState([])
+  const initPage = {
+    current: 1,
+    pageSize: 8
+  }
+  const [page, setPage] = useState(initPage)
+
+  const [total, setTotal] = useState(0)
   const [drawerWidth, setDrawerWidth] = useState(400)
   const [currentRecord, setCurrentRecord] = useState(null)
   // const searchHandler = (values) => {
@@ -25,34 +32,42 @@ const Record = (props) => {
     f_setInfo({ t: 'setRecordFormModal', d: true })
   }
   const handleSubmit = (d) => {
-    console.log(d)
+
     http.post('/record/save', d).then(d => {
       message.success(d.msg)
       f_setInfo({ t: 'setRecordFormModal', d: false })
-      loadImgs()
+      loadRecord(initPage)
     }).then(e => {
       console.log('/record/save', e)
     })
   }
 
-  const loadImgs = async (imgs) => {
+  const loadRecord = async (params, more) => {
+    const p = Object.assign(params, { categoryId: category.id })
     setRecords([])
-    const res = await http.post('/record/list', { categoryId: category.id })
+    const res = await http.post('/record/list', p)
     setRecords(res.rows)
+    setTotal(res.total)
     setLoading(false)
   }
 
   const removeRecord = (id) => {
     http.post(`/record/delete/${id}`).then(d => {
       message.success(d.msg)
+      setPage(1)
+      loadRecord(initPage)
     }).catch(e => {
       console.log(`/record/delete/${id}`, e)
     })
   }
 
+  const changePage = (newPage) => {
+    loadRecord(newPage)
+  }
+
   useEffect(() => {
     if (category) {
-      loadImgs()
+      loadRecord(page)
     }
   }, [category])// eslint-disable-line
 
@@ -103,55 +118,55 @@ const Record = (props) => {
           </ul></div>) : undefined
           }
           <div className='recordList'>
-            {
-              <List
-                itemLayout="vertical"
-                size="large"
-                dataSource={records}
-                renderItem={item => (
-                  <List.Item
-                    key={item.title}
-                    actions={
-                      !loading
-                        ? [
-                          <><StarOutlined /><span>{item.viewCount.collection}</span></>,
-                          <><LikeOutlined /><span>{item.viewCount.likeIt}</span></>,
-                          <><MessageOutlined /><span>30</span></>,
-                          <div style={drawerWidth === 400 ? { 'paddingTop': '10px' } : null}>
-                            <Space size={'large'}>
-                              <a href='#!' title='编辑' onClick={() => openRecordFormModal(item)}><EditOutlined /></a>
 
-                              <Popconfirm
-                                placement="top"
-                                title='确认要删除吗?'
-                                onConfirm={removeRecord}
-                                okText="确认"
-                                cancelText="取消"
-                              >
-                                <a href='#!' title='删除'><DeleteOutlined /></a>
-                              </Popconfirm>
-                              <span>{item.createTime}</span>
-                            </Space>
-                          </div>
-                        ]
-                        : undefined
-                    }
-                  >
+            <List
+              itemLayout="vertical"
+              size="large"
+              dataSource={records}
+              renderItem={item => (
+                <List.Item
+                  key={item.title}
+                  actions={
+                    !loading
+                      ? [
+                        <><StarOutlined /><span>{item.viewCount.collection}</span></>,
+                        <><LikeOutlined /><span>{item.viewCount.likeIt}</span></>,
+                        <><MessageOutlined /><span>30</span></>,
+                        <div style={drawerWidth === 400 ? { 'paddingTop': '10px' } : null}>
+                          <Space size={'large'}>
+                            <a href='#!' title='编辑' onClick={() => openRecordFormModal(item)}><EditOutlined /></a>
 
-                    <div className='skeletonImgGroup' style={{ 'paddingLeft': '10px' }}>
-                      <Image.PreviewGroup>
-                        {item.imgs.map(img =>
-                          <SyncImg key={img.sha} width={100} height={100} imgUrl={img.imgUrl}></SyncImg>
-                        )}
-                      </Image.PreviewGroup>
-                    </div>
-                    <div className='recordContent'>
-                      {item.recordDesc}
-                    </div>
-                  </List.Item>
-                )}
-              />
-            }
+                            <Popconfirm
+                              placement="top"
+                              title='确认要删除吗?'
+                              onConfirm={() => { removeRecord(item.id) }}
+                              okText="确认"
+                              cancelText="取消"
+                            >
+                              <a href='#!' title='删除'><DeleteOutlined /></a>
+                            </Popconfirm>
+                            <span>{item.createTime}</span>
+                          </Space>
+                        </div>
+                      ]
+                      : undefined
+                  }
+                >
+
+                  <div className='skeletonImgGroup' style={{ 'paddingLeft': '10px' }}>
+                    <Image.PreviewGroup>
+                      {item.imgs.map(img =>
+                        <SyncImg key={img.id} width={100} height={100} imgUrl={img.imgUrl}></SyncImg>
+                      )}
+                    </Image.PreviewGroup>
+                  </div>
+                  <div className='recordContent'>
+                    {item.recordDesc}
+                  </div>
+                </List.Item>
+              )}
+            />
+            {total > initPage.pageSize ? <Pagination onChange={changePage} total={total}></Pagination> : null}
           </div>
         </Spin>
       </Drawer>
@@ -168,10 +183,15 @@ const RecordFormModal = (props) => {
   const [form] = Form.useForm()
 
   const [fileList, setFileList] = useState([])
-  const [removeSha, setRemoveSha] = useState([])
+  const [removeIds, setRemoveIds] = useState([])
 
 
   const handleSubmitPrev = (p) => {
+    const submitFlag = fileList.filter(f => f.originFileObj).findIndex(i => i.status !== 'done') === -1
+    if (!submitFlag) {
+      message.warn('图片上传中,请稍等!')
+      return
+    }
     form.validateFields().then(values => {
       console.log(values)
       let data = values
@@ -187,7 +207,7 @@ const RecordFormModal = (props) => {
         data.id = record.id
       }
       data.categoryId = categoryId
-      data.removeSha = removeSha
+      data.removeIds = removeIds
       handleSubmit(data)
     }).catch(err => {
       console.log(err)
@@ -205,12 +225,15 @@ const RecordFormModal = (props) => {
       reader.onload = () => resolve(reader.result)
       reader.onerror = (error) => reject(error)
     })
-  const handleChange = ({ fileList: newFileList }) => { setFileList(newFileList) }
+  const handleChange = (data) => {
+    setFileList(data.fileList)
+  }
 
   const handleRemove = (f) => {
     if (f.originFileObj) {
       http.post('/f/delTmp', {
         categoryId: categoryId,
+        id: f.response.data.content.id,
         sha: f.response.data.content.sha,
         fileName: f.response.data.content.name
       }
@@ -221,7 +244,7 @@ const RecordFormModal = (props) => {
         console.log('/f/del', e)
       })
     } else {
-      setRemoveSha([...removeSha, f.response.data.content.sha])
+      setRemoveIds([...removeIds, f.response.data.content.id])
       return true
     }
 
@@ -239,7 +262,7 @@ const RecordFormModal = (props) => {
   const renderItem = (originNode, file, fileList, actions) => {
     return (
       <div className="ant-upload-list-item ant-upload-list-item-done ant-upload-list-item-list-type-picture-card" style={{ 'overflow': 'hidden' }}>
-        <CloseCircleOutlined className='imgClose' onClick={() => remove(actions, file)} />
+        <CloseCircleOutlined className={'imgClose' + (file.status === 'done' ? '' : ' none')} onClick={() => remove(actions, file)} />
         <SyncImg height={'100%'} width={'100%'} imgUrl={file.originFileObj ? getBase64(file.originFileObj) : file.response.data.content.url}></SyncImg>
       </div >
     )
@@ -247,10 +270,10 @@ const RecordFormModal = (props) => {
 
   useEffect(() => {
     form.resetFields()
-    setRemoveSha([])
+    setRemoveIds([])
     if (record) {
       const imgs = record.imgs.map(item => {
-        return { name: item.fileName, uid: item.sha, response: { data: { content: { sha: item.sha, url: item.imgUrl, name: item.fileName } } } }
+        return { name: item.fileName, uid: item.id, status: 'done', response: { data: { content: { id: item.id, sha: item.sha, url: item.imgUrl, name: item.fileName } } } }
       })
       setFileList(imgs)
     } else {
